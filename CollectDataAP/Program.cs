@@ -27,6 +27,7 @@ namespace CollectDataAP
         public const int WM_HOTKEY = 0x312;
         public const int DSIX = 0x36;
 
+        /*
         public static void sendKeystroke()
         {
             const uint WM_KEYDOWN = 0x100;
@@ -47,7 +48,7 @@ namespace CollectDataAP
                     PostMessage(edit, WM_KEYUP, (IntPtr)(Keys.Control), IntPtr.Zero);
                 }
             }
-        }
+        }*/
 
         static void Main(string[] args)
         {
@@ -85,7 +86,10 @@ namespace CollectDataAP
         private static LowLevelKeyboardProc _proc = HookCallback; //The function called when a key is pressed
         private static IntPtr _hookID = IntPtr.Zero;
         private static bool CONTROL_DOWN = false;                 //Bool to use as a flag for control key
-
+        private static bool menuUp = false;                 //Bool to use as a flag for control key
+        private static bool controlUp = false;                 //Bool to use as a flag for control key
+        private static bool shiftUp = false;                 //Bool to use as a flag for control key
+        private static bool d0 = false;                 //Bool to use as a flag for control key
 
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
@@ -101,8 +105,10 @@ namespace CollectDataAP
 
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            sendKeystroke();
-            
+            // sendKeystroke();
+
+            Console.WriteLine("\nHave key action");
+
             //if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) //A Key was pressed down
             if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)) //A Key was pressed down
             {
@@ -123,19 +129,47 @@ namespace CollectDataAP
                     Environment.Exit(0);                          //Exit our program
                 }
             }
-            else if (nCode >= 0 && wParam == (IntPtr)WM_KEYUP) //KeyUP
+            else if (nCode >= 0 && wParam == (IntPtr)WM_KEYUP)    //KeyUP
             {
-                int vkCode = Marshal.ReadInt32(lParam);        //Get Keycode
-                string theKey = ((Keys)vkCode).ToString();     //Get Key name
-                if (theKey.Contains("ControlKey"))             //If they let go of control
+                int vkCode = Marshal.ReadInt32(lParam);           //Get Keycode
+                string theKey = ((Keys)vkCode).ToString();        //Get Key name
+                if (theKey.Contains("ControlKey"))                //If they let go of control
                 {
-                    CONTROL_DOWN = false;                      //Unflag control
+                    CONTROL_DOWN = false;                         //Unflag control
                 }
-                if((theKey.Contains("RShiftKey")|| theKey.Contains("LShiftKey")) && (theKey.Contains("RMenu") || theKey.Contains("LMenu")) && (theKey.Contains("LControlKey") || theKey.Contains("RControlKey"))  && (theKey.Contains("D0")  ))
+                //if((theKey.Contains("RShiftKey")|| theKey.Contains("LShiftKey")) && (theKey.Contains("RMenu") || theKey.Contains("LMenu")) && (theKey.Contains("LControlKey") || theKey.Contains("RControlKey"))  && (theKey.Contains("D0")  ))
+                if (  theKey.Contains("Menu"))
                 {
                     Console.WriteLine("HotTab Menu Key Pressed");
+                    menuUp = true;
                 }
+                if (theKey.Contains("ControlKey"))
+                {
+                    Console.WriteLine("HotTab ControlKey Key Pressed");
+                    controlUp = true;
+                }
+                if (theKey.Contains("ShiftKey"))
+                {
+                    Console.WriteLine("HotTab ShiftHey Key Pressed");
+                    shiftUp = true;
+                }
+                if (theKey.Contains("D0"))
+                {
+                    Console.WriteLine("HotTab D0 Key Pressed");
+                    d0 = true;
+                }
+                if(menuUp == true && controlUp == true && shiftUp == true && d0 == true)
+                {
+                    Console.WriteLine("HotTab Menu Key Pressed");
+                    menuUp = false;                 //Bool to use as a flag for control key
+                    controlUp = false;                 //Bool to use as a flag for control key
+                    shiftUp = false;                 //Bool to use as a flag for control key
+                    d0 = false;
+                }
+
             }
+
+
             return CallNextHookEx(_hookID, nCode, wParam, lParam); //Call the next hook
         }
 
