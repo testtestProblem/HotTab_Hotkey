@@ -27,7 +27,11 @@ namespace CollectDataAP
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
-         
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg,
+            IntPtr wParam, IntPtr lParam);
+
         //Hook id
         private const int WH_KEYBOARD_LL = 13;                    //Type of Hook - Low Level Keyboard
         private const int WH_KEYBOARD = 2;                    //Type of Hook - Low Level Keyboard
@@ -45,15 +49,21 @@ namespace CollectDataAP
         private static bool controlUp = false;                 //Bool to use as a flag for control key
         private static bool shiftUp = false;                 //Bool to use as a flag for control key
 
+        private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+        private const int APPCOMMAND_VOLUME_UP = 0xA0000;
+        private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
+        private const int WM_APPCOMMAND = 0x319;
+
+        private static IntPtr HWND_BROADCAST = (IntPtr)0xffff;
 
         static void Main(string[] args)
         {
+            Tommy.Tommy_Start();
+
             _hookID = SetHook(_proc);  //Set our hook
             Application.Run();         //Start a standard application method loop 
         }
-
-
-
+        
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -67,7 +77,9 @@ namespace CollectDataAP
 
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            
+            //SendMessageW(_hookID, WM_APPCOMMAND, _hookID, (IntPtr)APPCOMMAND_VOLUME_UP);
+            SendMessageW(HWND_BROADCAST, WM_APPCOMMAND, HWND_BROADCAST, (IntPtr)APPCOMMAND_VOLUME_UP);
+
             if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)) //A Key was pressed down
             {
                 int vkCode = Marshal.ReadInt32(lParam);           //Get the keycode
@@ -85,12 +97,13 @@ namespace CollectDataAP
                 int vkCode = Marshal.ReadInt32(lParam);           //Get Keycode
                 string theKey = ((Keys)vkCode).ToString();        //Get Key name
                 Console.WriteLine("Key break " + theKey);
+                
                 if (menuUp == true)
                 {
                     if(theKey.Contains("D0") || theKey.Contains("D3") || theKey.Contains("D4") || theKey.Contains("D5") || theKey.Contains("D6")
                         || theKey.Contains("D7") || theKey.Contains("D") || theKey.Contains("M") || theKey.Contains("RShiftKey") || theKey.Contains("RControlKey"))
                     {
-
+                        
                     }
                     else
                     {
@@ -99,11 +112,13 @@ namespace CollectDataAP
                         shiftUp = false;
                     }
                 }
+                
                 if (menuUp == true && controlUp == true && shiftUp == true)
                 {
                     if (theKey.Contains("D0"))
                     {
                         Console.WriteLine("Menu Key Pressed");
+                        SendMessageW(HWND_BROADCAST, WM_APPCOMMAND, HWND_BROADCAST, (IntPtr)APPCOMMAND_VOLUME_UP);
                     }
                     else if (theKey.Contains("D3"))
                     {
@@ -144,8 +159,7 @@ namespace CollectDataAP
                 }
 
                 if (theKey.Contains("ShiftKey") || theKey.Contains("RShiftKey") || theKey.Contains("LShiftKey") && menuUp == true && controlUp == true)
-                {
-                    
+                { 
                     Console.WriteLine("HotTab ShiftHey Key Break");
                     shiftUp = true;
                 }
