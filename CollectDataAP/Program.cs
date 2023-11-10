@@ -98,6 +98,10 @@ namespace CollectDataAP
                 {
                     SendMessageW(handle, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_DOWN);
                 }
+                else if (theKey.Contains("B"))
+                {
+                    SendMessageW(handle, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_DOWN);
+                }
 
                 if (theKey == "Escape")                           //If they press escape
                 {
