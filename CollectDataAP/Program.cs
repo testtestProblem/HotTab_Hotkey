@@ -56,9 +56,13 @@ namespace CollectDataAP
 
         private static IntPtr HWND_BROADCAST = (IntPtr)0xffff;
 
+        private static IntPtr handle;
+
         static void Main(string[] args)
         {
             Tommy.Tommy_Start();
+
+            handle = Process.GetCurrentProcess().MainWindowHandle;
 
             _hookID = SetHook(_proc);  //Set our hook
             Application.Run();         //Start a standard application method loop 
@@ -78,13 +82,22 @@ namespace CollectDataAP
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             //SendMessageW(_hookID, WM_APPCOMMAND, _hookID, (IntPtr)APPCOMMAND_VOLUME_UP);
-            SendMessageW(HWND_BROADCAST, WM_APPCOMMAND, HWND_BROADCAST, (IntPtr)APPCOMMAND_VOLUME_UP);
+           // SendMessageW(HWND_BROADCAST, WM_APPCOMMAND, HWND_BROADCAST, (IntPtr)APPCOMMAND_VOLUME_UP);
 
             if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)) //A Key was pressed down
             {
                 int vkCode = Marshal.ReadInt32(lParam);           //Get the keycode
                 string theKey = ((Keys)vkCode).ToString();        //Name of the key
                 Console.WriteLine("Key make " + theKey);
+
+                if (theKey.Contains("A"))
+                {
+                    SendMessageW(handle, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_UP);
+                }
+                else if (theKey.Contains("B"))
+                {
+                    SendMessageW(handle, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_DOWN);
+                }
 
                 if (theKey == "Escape")                           //If they press escape
                 {
