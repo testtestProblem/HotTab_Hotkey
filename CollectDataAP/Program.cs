@@ -168,6 +168,16 @@ namespace CollectDataAP
                 {
                     SetBrightness(10);
                 }
+                else if (theKey.Contains("F"))
+                {
+                    System.Diagnostics.Process.Start("calc");
+
+                }
+                else if (theKey.Contains("G"))
+                {
+                    Process.Start("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+                }
+
 
                 if (theKey == "Escape")                           //If they press escape
                 {
@@ -259,11 +269,6 @@ namespace CollectDataAP
                     menuUp = true;
                 }
 
-               
-
-                
-
-                
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam); //Call the next hook
         }
