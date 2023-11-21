@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -70,12 +71,32 @@ namespace CollectDataAP
         {
             Tommy.Tommy_Start();
 
-            handle = Process.GetCurrentProcess().MainWindowHandle;
+            new Thread(() => test()).Start();
+            
+            //handle = Process.GetCurrentProcess().MainWindowHandle;
 
-            _hookID = SetHook(_proc);  //Set our hook
-            Application.Run();         //Start a standard application method loop 
+            while (Console.ReadLine() != "0")
+            {
+                
+                //_hookID = SetHook(_proc);    //Set our hook
+                Console.WriteLine("ccc");
+                //Application.Run();         //Start a standard application method loop 
+                 
+                
+            }
         }
 
+        static void test()
+        {
+            handle = Process.GetCurrentProcess().MainWindowHandle;
+            _hookID = SetHook(_proc);    //Set our hook
+
+            Console.WriteLine("aaa");
+
+            Application.Run();         //Start a standard application method loop 
+
+            Console.WriteLine("bbb");
+        } 
 
         private static void InitializeClass()
         {
@@ -126,12 +147,15 @@ namespace CollectDataAP
             return retVal;
         }
 
+        //Whan have key code then return
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
             {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+                //return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, (IntPtr)null, 0);
+
             }
         }
 
@@ -171,11 +195,26 @@ namespace CollectDataAP
                 else if (theKey.Contains("F"))
                 {
                     System.Diagnostics.Process.Start("calc");
-
                 }
                 else if (theKey.Contains("G"))
                 {
                     Process.Start("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+                }
+                else if (theKey.Contains("H"))
+                {
+                    System.Diagnostics.Process.Start("cmd");
+                }
+                else if (theKey.Contains("W"))
+                {
+                   // System.Diagnostics.Process.Start("SnippingTool");
+                }
+                else if (theKey.Contains("Q"))
+                {
+                    System.Diagnostics.Process.Start("Taskmgr");
+                }
+                else if (theKey.Contains("c"))
+                {
+                    System.Diagnostics.Process.Start("mspaint");
                 }
 
 
